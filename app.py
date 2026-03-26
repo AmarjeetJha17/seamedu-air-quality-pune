@@ -33,7 +33,7 @@ with tab2:
 
 with tab3:
     st.subheader("Pollutant Correlation Heatmap")
-    st.image("pollutant_correlation_heatmap.png", use_column_width=True)
+    st.image("pollutants_corelation_heatmap.png", use_column_width=True)
     st.caption("2024 Hourly Data – Strongest link: PM2.5 ↔ PM10 (0.92)")
 
 with tab4:

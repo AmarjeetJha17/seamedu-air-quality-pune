@@ -133,4 +133,4 @@ with st.sidebar:
     st.write("👨‍💻 Built by Amarjit Jha")
     st.write("GitHub: [seamedu-air-quality-pune](https://github.com/AmarjeetJha17/seamedu-air-quality-pune)")
 
-st.caption("Dashboard ready for Seamedu Awards submission")
+st.caption("Dashboard ready")

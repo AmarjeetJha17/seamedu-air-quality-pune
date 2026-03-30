@@ -14,7 +14,7 @@ Data-driven analysis of Pune’s AQI (2017–2024) with pollutant correlations, 
 - `pollutant_correlation_heatmap.png` → Visuals
 
 ### Live Dashboard
-[🔗 Click here for interactive Streamlit Dashboard](https://your-streamlit-link-will-go-here)
+[🔗 Click here for interactive Streamlit Dashboard](https://seamedu-air-quality-pune.streamlit.app/)
 
 ### How to Run
 1. Open the notebook in Google Colab

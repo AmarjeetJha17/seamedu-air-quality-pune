@@ -87,17 +87,29 @@ with tab5:
     st.info("**Key Insight**: PM2.5 and PM10 move almost in lockstep. Clear daily peaks during morning and evening traffic hours.")
 
 # --------------------- TAB 6: ARIMA Forecast ---------------------
+# --------------------- TAB 6: SARIMA Forecast (Improved) ---------------------
 with tab6:
-    st.subheader("ARIMA Forecast – Pune AQI 2025–2026")
+    st.subheader("SARIMA Forecast – Pune AQI 2025–2026")
+    st.caption("Now captures seasonal winter peaks (much more realistic)")
+
+    # Prepare time series
     daily_ts = daily.set_index('Date')['AQI'].asfreq('D').fillna(method='ffill')
-    model = ARIMA(daily_ts, order=(5, 1, 0))
-    model_fit = model.fit()
-    
+
+    # SARIMA model: (p,d,q) x (P,D,Q,s) with s=365 (yearly seasonality)
+    from statsmodels.tsa.statespace.sarimax import SARIMAX
+    model = SARIMAX(daily_ts, 
+                    order=(5, 1, 0), 
+                    seasonal_order=(1, 1, 1, 365))   # 365-day seasonality
+    model_fit = model.fit(disp=False)
+
+    # Forecast next 730 days
     forecast_steps = 730
     forecast = model_fit.get_forecast(steps=forecast_steps)
-    forecast_index = pd.date_range(start=daily_ts.index[-1] + pd.Timedelta(days=1),
-                                   periods=forecast_steps, freq='D')
-    
+    forecast_index = pd.date_range(
+        start=daily_ts.index[-1] + pd.Timedelta(days=1),
+        periods=forecast_steps, freq='D'
+    )
+
     conf_int = forecast.conf_int()
     forecast_df = pd.DataFrame({
         'Date': forecast_index,
@@ -105,23 +117,33 @@ with tab6:
         'Lower_CI': conf_int.iloc[:, 0].values,
         'Upper_CI': conf_int.iloc[:, 1].values
     })
-    
-    fig_forecast = px.line(daily_ts[-365:], title="Last 1 Year Actual + 2-Year Forecast")
-    fig_forecast.add_scatter(x=forecast_df['Date'], y=forecast_df['Forecast'],
-                             mode='lines', name='Forecast', line=dict(color='red', dash='dash'))
-    fig_forecast.add_scatter(x=forecast_df['Date'], y=forecast_df['Lower_CI'],
-                             mode='lines', name='95% Lower', line=dict(color='rgba(255,0,0,0.3)'), showlegend=False)
-    fig_forecast.add_scatter(x=forecast_df['Date'], y=forecast_df['Upper_CI'],
-                             mode='lines', name='95% Upper', line=dict(color='rgba(255,0,0,0.3)'),
-                             fill='tonexty', fillcolor='rgba(255,0,0,0.1)')
+
+    # Plot
+    fig_forecast = px.line(
+        daily_ts[-365:], 
+        title="Last 1 Year Actual + 2-Year Seasonal Forecast"
+    )
+    fig_forecast.add_scatter(
+        x=forecast_df['Date'], y=forecast_df['Forecast'],
+        mode='lines', name='Forecast', line=dict(color='red', dash='dash')
+    )
+    fig_forecast.add_scatter(
+        x=forecast_df['Date'], y=forecast_df['Lower_CI'],
+        mode='lines', name='95% Lower', line=dict(color='rgba(255,0,0,0.3)'), showlegend=False
+    )
+    fig_forecast.add_scatter(
+        x=forecast_df['Date'], y=forecast_df['Upper_CI'],
+        mode='lines', name='95% Upper', line=dict(color='rgba(255,0,0,0.3)'),
+        fill='tonexty', fillcolor='rgba(255,0,0,0.1)'
+    )
     fig_forecast.update_layout(height=600, title_font_size=18)
     st.plotly_chart(fig_forecast, use_container_width=True)
-    
+
     avg_forecast = forecast_df['Forecast'].mean()
     st.metric("Predicted Average AQI (2025–2026)", f"{avg_forecast:.0f}",
               delta=f"{'↑ Worse' if avg_forecast > daily_ts.mean() else '↓ Better'} than historical")
     
-    st.info("**Key Insight**: Winter spikes are expected to continue through 2025–2026. Stronger winter-specific interventions are needed.")
+    st.info("**Key Insight**: Winter spikes are expected to continue through 2025–2026. The model now properly captures seasonality.")
 
 # ====================== SIDEBAR ======================
 with st.sidebar:

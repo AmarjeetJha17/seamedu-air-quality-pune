@@ -1,2 +1,27 @@
+# Data — raw files (provide download link in README)
+data/raw/
+
+# Environment
+.env
 __pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
 .ipynb_checkpoints/
+
+# Byte-compiled
+*.pyo
+*.egg-info/
+dist/
+build/
